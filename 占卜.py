@@ -139,7 +139,7 @@ if st.session_state.get("cards_drawn"):
         }
 
         try:
-            response = requests.post(n8n_webhook_url, json=payload, timeout=25)
+            response = requests.post(n8n_webhook_url, json=payload, timeout=60)
             if response.status_code == 200:
                 st.subheader("🪐 Gemini 導師深度報告")
                 data = response.json()
