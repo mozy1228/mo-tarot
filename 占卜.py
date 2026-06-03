@@ -1,6 +1,4 @@
-from datetime import datetime
 import random
-import time
 import streamlit as st
 import requests
 
@@ -22,6 +20,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+
 # ==================== 核心邏輯 ====================
 class TarotCard:
     def __init__(self, name, meaning):
@@ -33,9 +32,9 @@ class TarotCard:
         orientation = "【正位】" if self.is_upright else "【逆位】"
         return f"{self.name} {orientation}"
 
+
 class TarotSystem:
     def __init__(self):
-        # 這裡放入你確認過的完整 78 張牌字典
         raw_data = {
             "0 愚人": "自由、冒險、新的開始", "I 魔術師": "自信、創造力、意志力", "II 女祭司": "智慧、直覺、神祕",
             "III 皇后": "豐饒、愛、感官享受", "IV 皇帝": "秩序、權力、穩定", "V 教皇": "傳統、信仰、規範",
@@ -62,6 +61,7 @@ class TarotSystem:
 
     def draw_spread(self, count):
         return random.sample(self.deck, count)
+
 
 # ==================== Streamlit 介面 ====================
 if "system" not in st.session_state: st.session_state.system = TarotSystem()
@@ -92,4 +92,28 @@ if st.session_state.get("cards_drawn"):
 
     if st.button("🔮 召喚 Gemini 深度解牌"):
         st.markdown('<div class="sparkle">✨ 星光閃爍，能量凝聚中... ✨</div>', unsafe_allow_html=True)
-        # 此處保持你與 n8n 連線的邏輯
+
+        # 請確認這個網址是 n8n 目前正確的 Webhook 網址
+        n8n_webhook_url = "http://localhost:5678/webhook/babc16ae-3b59-4382-ad16-ff0232fe688f"
+
+        payload = {
+            "name": user_name,
+            "question": question,
+            "card": str([str(c) for c in st.session_state.current_cards])
+        }
+
+        try:
+            response = requests.post(n8n_webhook_url, json=payload, timeout=25)
+
+            if response.status_code == 200:
+                st.subheader("🪐 Gemini 導師深度報告")
+                data = response.json()
+                # 嘗試抓取 output，如果抓不到就顯示完整資料
+                ai_text = data.get('output') or str(data)
+                st.markdown(ai_text)
+            else:
+                st.error(f"連線異常 (狀態碼: {response.status_code})")
+                st.text(f"錯誤內容: {response.text}")
+
+        except Exception as e:
+            st.error(f"無法連結到 n8n 服務: {e}")
