@@ -154,15 +154,20 @@ if st.session_state.cards_drawn:
                 # 在 requests.post 裡面加上 headers=headers
                 response = requests.post(n8n_webhook_url, json=payload, headers=headers)
 
+                # 找到這一段並修改：
                 if response.status_code == 200:
-                    st.balloons()  # 噴發氣球
+                    st.balloons()
                     st.subheader("🪐 Gemini 導師深度解牌報告")
 
-                    # ⭕ 先把資料轉成 JSON，並精準撈出裡面的 "text" 欄位（就是 Gemini 寫的報告）
-                    ai_report = response.json().get("text", "報告讀取失敗")
-                    st.markdown(ai_report)  # 秀出超完美的靈性文案
+                    # 修改這裡：使用 json().get("text") 準確解析內容
+                    try:
+                        ai_report = response.json().get("text")
+                        st.markdown(ai_report)
+                    except:
+                        # 萬一 JSON 解析失敗，秀出原始回應方便偵錯
+                        st.markdown(response.text)
                 else:
-                    st.error(f"AI 導師暫時無法連線 (狀態碼: {response.status_code})，請確認 n8n 是否開啟。")
+                    st.error(f"連線失敗，狀態碼: {response.status_code}")
             except Exception as e:
                 st.error(
                     f"連線至 AI 發生錯誤: {e}\n\n💡 提示：請確認 n8n 的 Webhook 積木是否正維持在 'Listen for test event' 狀態喔！")
