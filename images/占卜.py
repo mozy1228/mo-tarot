@@ -157,7 +157,10 @@ if st.session_state.cards_drawn:
                 if response.status_code == 200:
                     st.balloons()  # 噴發氣球
                     st.subheader("🪐 Gemini 導師深度解牌報告")
-                    st.markdown(response.text)  # 秀出超完美的靈性文案
+
+                    # ⭕ 先把資料轉成 JSON，並精準撈出裡面的 "text" 欄位（就是 Gemini 寫的報告）
+                    ai_report = response.json().get("text", "報告讀取失敗")
+                    st.markdown(ai_report)  # 秀出超完美的靈性文案
                 else:
                     st.error(f"AI 導師暫時無法連線 (狀態碼: {response.status_code})，請確認 n8n 是否開啟。")
             except Exception as e:
