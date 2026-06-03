@@ -1,6 +1,7 @@
 import random
 import streamlit as st
 import requests
+import time
 
 # ==================== CSS 特效 ====================
 st.markdown("""
@@ -20,7 +21,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-
 # ==================== 核心邏輯 ====================
 class TarotCard:
     def __init__(self, name, meaning):
@@ -31,7 +31,6 @@ class TarotCard:
     def __str__(self):
         orientation = "【正位】" if self.is_upright else "【逆位】"
         return f"{self.name} {orientation}"
-
 
 class TarotSystem:
     def __init__(self):
@@ -62,50 +61,49 @@ class TarotSystem:
     def draw_spread(self, count):
         return random.sample(self.deck, count)
 
-
 # ==================== Streamlit 介面 ====================
 if "system" not in st.session_state: st.session_state.system = TarotSystem()
 
 st.set_page_config(page_title="小莫不專業塔羅系統", page_icon="🔮")
 st.title("🔮 小莫不專業塔羅系統")
 
-# 側邊欄與抽牌邏輯
 user_name = st.sidebar.text_input("👤 您的姓名：", value="訪客")
 option = st.sidebar.selectbox("選擇牌陣：", ["單張靈感", "過去現在未來", "深度探索"])
 count = {"單張靈感": 1, "過去現在未來": 3, "深度探索": 5}[option]
-
 question = st.text_input("💬 想詢問的問題：")
 
 if st.button("🌟 開始洗牌"):
     if question:
-        st.session_state.current_cards = st.session_state.system.draw_spread(count)
-        st.session_state.cards_drawn = True
+        with st.spinner("正在為你洗牌，連結宇宙能量中..."):
+            time.sleep(1.5)
+            st.session_state.current_cards = st.session_state.system.draw_spread(count)
+            st.session_state.cards_drawn = True
+            st.rerun()
     else:
         st.warning("請先輸入問題喔！")
 
 if st.session_state.get("cards_drawn"):
     cols = st.columns(count)
     for i, card in enumerate(st.session_state.current_cards):
-        cols[i].metric("牌卡", card.name)
-        cols[i].write("正位" if card.is_upright else "逆位")
-        cols[i].caption(card.meaning)
-
+        with cols[i]:
+            time.sleep(0.3)
+            st.metric("牌卡", card.name)
+            st.write("正位" if card.is_upright else "逆位")
+            st.caption(card.meaning)
+    
+    st.markdown("---")
     if st.button("🔮 召喚 Gemini 深度解牌"):
         st.markdown('<div class="sparkle">✨ 星光閃爍，能量凝聚中... ✨</div>', unsafe_allow_html=True)
-
-        # 請確認這個網址是 n8n 目前正確的 Webhook 網址
-        # 請將原本的 localhost 網址改為下面這行
+        
         n8n_webhook_url = "https://wrecking-outlook-lesser.ngrok-free.dev/webhook/babc16ae-3b59-4382-ad16-ff0232fe688f"
-
         payload = {
             "name": user_name,
             "question": question,
             "card": str([str(c) for c in st.session_state.current_cards])
         }
-
+        
         try:
             response = requests.post(n8n_webhook_url, json=payload, timeout=25)
-
             if response.status_code == 200:
                 st.subheader("🪐 Gemini 導師深度報告")
                 data = response.json()
@@ -113,11 +111,8 @@ if st.session_state.get("cards_drawn"):
                 st.markdown(ai_text)
             else:
                 st.error("⚠️ 訊號有點雜訊，Gemini 導師正在調整頻率...")
-
         except requests.exceptions.ConnectionError:
-            # 這裡就是你要的幽默錯誤處理
             st.warning("💤 小莫現在去追蝴蝶或是睡午覺了，塔羅系統暫時進入夢鄉。")
             st.caption("— 記得提醒小莫回來開工喔！")
-
         except Exception as e:
             st.error(f"系統發生了一點小插曲: {e}")
