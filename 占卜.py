@@ -170,9 +170,11 @@ if st.session_state.cards_drawn:
                                       response_json.get("output", {}).get("text") or \
                                       response.text
 
+                        # 1. 轉譯換行
                         final_report = report_text.replace("\\n", "\n")
 
-                        st.markdown(final_report)
+                        # 2. 【關鍵修正】過濾掉 thoughtSignature
+                        # 只要字串裡有出現這個標記，我們就把它和後面的內容全部切掉
                         if '"thoughtSignature"' in final_report:
                             final_report = final_report.split('"thoughtSignature"')[0]
 
