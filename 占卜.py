@@ -159,30 +159,18 @@ if st.session_state.cards_drawn:
                     st.balloons()
                     st.subheader("🪐 Gemini 導師深度解牌報告")
 
-                    # 這是最穩定的解析方式
+                    # 1. 取得原始 JSON
+                    data = response.json()
+
+                    # 2. 從複雜的結構中，「開箱」並提取最核心的文字內容
+                    # 這裡會自動深入去抓取 content -> parts -> 0 -> text
                     try:
-                        # 因為 n8n 回傳的是 JSON，我們要先抓出來
-                        response_json = response.json()
+                        ai_report = data.get('content', {}).get('parts', [{}])[0].get('text', '')
 
-                        # 根據我們之前的設定，文字內容會藏在這裡面
-                        # 我們檢查一下不同的路徑，確保一定能抓到
-                        report_text = response_json.get("text") or \
-                                      response_json.get("output", {}).get("text") or \
-                                      response.text
-
-                        # 1. 轉譯換行
-                        final_report = report_text.replace("\\n", "\n")
-
-                        # 2. 【關鍵修正】過濾掉 thoughtSignature
-                        # 只要字串裡有出現這個標記，我們就把它和後面的內容全部切掉
-                        if '"thoughtSignature"' in final_report:
-                            final_report = final_report.split('"thoughtSignature"')[0]
-
-                        st.markdown(final_report)
-
-                    except Exception as e:
-                        # 如果解析 JSON 失敗，至少把原始文字顯示出來，讓你看到報告
-                        st.markdown(response.text)
+                        # 3. 完美顯示：將 AI 的報告乾淨地呈現出來
+                        st.markdown(ai_report)
+                    except:
+                        st.write("解析報告時發生了一點小插曲，這是原始資料：", data)
                 else:
                     st.error(f"AI 導師目前有點忙碌 (錯誤碼: {response.status_code})，請稍後再試。")
             except Exception as e:
