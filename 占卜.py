@@ -178,5 +178,4 @@ if st.session_state.cards_drawn:
                 else:
                     st.error(f"AI 導師目前有點忙碌 (錯誤碼: {response.status_code})，請稍後再試。")
             except Exception as e:
-                st.error(
-                    f"連線至 AI 發生錯誤: {e}\n\n💡 提示：請確認 n8n 的 Webhook 積木是否正維持在 'Listen for test event' 狀態喔！")
+                st.error(f"連線至 AI 發生錯誤: {e}\n\n💡 提示：請確認 n8n 的 Webhook 積木是否正維持在 'Listen for test event' 狀態喔！")
