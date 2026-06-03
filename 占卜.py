@@ -28,10 +28,6 @@ class TarotCard:
         self.meaning = meaning
         self.is_upright = random.choice([True, False])
 
-    def __str__(self):
-        orientation = "【正位】" if self.is_upright else "【逆位】"
-        return f"{self.name} {orientation}"
-
 class TarotSystem:
     def __init__(self):
         raw_data = {
@@ -83,13 +79,22 @@ if st.button("🌟 開始洗牌"):
         st.warning("請先輸入問題喔！")
 
 if st.session_state.get("cards_drawn"):
+    element_icons = {
+        "權杖": "🔥", "聖杯": "💧", "寶劍": "⚔️", "金幣": "💰", "愚人": "🃏", "魔術師": "🪄", "女祭司": "📜",
+        "皇后": "👑", "皇帝": "🏛️", "教皇": "⛪", "戀人": "❤️", "戰車": "🐎", "力量": "🦁", "隱者": "🕯️",
+        "命運": "🎡", "正義": "⚖️", "倒吊人": "🧘", "死神": "💀", "節制": "🏺", "惡魔": "⛓️", "塔": "⚡",
+        "星星": "🌟", "月亮": "🌙", "太陽": "☀️", "審判": "🎺", "世界": "🌍"
+    }
+    
     cols = st.columns(count)
     for i, card in enumerate(st.session_state.current_cards):
         with cols[i]:
             time.sleep(0.3)
-            st.metric("牌卡", card.name)
-            st.write("正位" if card.is_upright else "逆位")
-            st.caption(card.meaning)
+            icon = next((icon for key, icon in element_icons.items() if key in card.name), "🎴")
+            st.markdown(f"<div style='font-size: 3rem; text-align: center;'>{icon}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='text-align: center;'><b>{card.name}</b></div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='text-align: center; color: #888;'>{'【正位】' if card.is_upright else '【逆位】'}</div>", unsafe_allow_html=True)
+            st.caption(f"{card.meaning}")
     
     st.markdown("---")
     if st.button("🔮 召喚 Gemini 深度解牌"):
@@ -99,7 +104,7 @@ if st.session_state.get("cards_drawn"):
         payload = {
             "name": user_name,
             "question": question,
-            "card": str([str(c) for c in st.session_state.current_cards])
+            "card": str([(c.name + ("【正位】" if c.is_upright else "【逆位】")) for c in st.session_state.current_cards])
         }
         
         try:
