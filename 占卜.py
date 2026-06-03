@@ -128,8 +128,16 @@ if st.session_state.get("cards_drawn"):
             """, unsafe_allow_html=True)
 
     st.markdown("---")
-    if st.button("🔮 召喚小莫深度解牌"):
-        st.markdown('<div class="sparkle">✨ 星光閃爍，能量凝聚中... ✨</div>', unsafe_allow_html=True)
+    if st.button("🔮 召喚 Gemini 深度解牌"):
+        loading_messages = [
+            "導師正在通靈中，請稍候... 有時候準有時候不準喔！",
+            "正在緊急惡補塔羅牌知識中，請給我三十秒。",
+            "小莫正在努力瞎掰中...",
+            "小莫正在翻閱塔羅牌字典，希望我沒拿反...",
+            "正在跟宇宙訊號對頻... 或者可能只是小莫去泡咖啡了。"
+        ]
+        msg = random.choice(loading_messages)
+        st.markdown(f'<div class="sparkle">✨ {msg} ✨</div>', unsafe_allow_html=True)
 
         n8n_webhook_url = "https://wrecking-outlook-lesser.ngrok-free.dev/webhook/babc16ae-3b59-4382-ad16-ff0232fe688f"
         payload = {
