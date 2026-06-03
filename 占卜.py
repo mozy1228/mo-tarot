@@ -82,9 +82,27 @@ if st.button("🌟 開始洗牌"):
         st.warning("請先輸入問題喔！")
 
 if st.session_state.get("cards_drawn"):
-    # 設定 columns
-    cols = st.columns(count)
+    # 使用 CSS 來優化卡片外觀
+    st.markdown("""
+    <style>
+    .tarot-card {
+        background-color: #1e2530;
+        border: 1px solid #444;
+        border-radius: 15px;
+        padding: 20px 10px;
+        text-align: center;
+        height: 320px; /* 固定高度，讓所有卡片對齊 */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .emoji-size { font-size: 3rem; margin-bottom: 10px; }
+    .card-name { font-size: 1.1rem; font-weight: bold; margin-bottom: 5px; }
+    .card-meaning { font-size: 0.85rem; color: #bbb; line-height: 1.4; }
+    </style>
+    """, unsafe_allow_html=True)
 
+    cols = st.columns(count)
     element_icons = {
         "權杖": "🔥", "聖杯": "💧", "寶劍": "⚔️", "金幣": "💰", "愚人": "🃏", "魔術師": "🪄", "女祭司": "📜",
         "皇后": "👑", "皇帝": "🏛️", "教皇": "⛪", "戀人": "❤️", "戰車": "🐎", "力量": "🦁", "隱者": "🕯️",
@@ -95,19 +113,19 @@ if st.session_state.get("cards_drawn"):
     for i, card in enumerate(st.session_state.current_cards):
         with cols[i]:
             time.sleep(0.3)
-            # 使用 container 讓每一張牌都長得整齊劃一
-            with st.container(border=True):
-                icon = next((icon for key, icon in element_icons.items() if key in card.name), "🎴")
-                st.markdown(f"<div style='font-size: 2.5rem; text-align: center;'>{icon}</div>", unsafe_allow_html=True)
-                # 使用 markdown 顯示名字，不再用 metric，避免文字過長導致排版崩壞
-                st.markdown(f"<div style='text-align: center; font-size: 1.1rem;'><b>{card.name}</b></div>",
-                            unsafe_allow_html=True)
-                st.markdown(
-                    f"<div style='text-align: center; color: #555; font-size: 0.9rem;'>{'【正位】' if card.is_upright else '【逆位】'}</div>",
-                    unsafe_allow_html=True)
-                st.divider()
-                st.markdown(f"<div style='text-align: center; font-size: 0.8rem;'>{card.meaning}</div>",
-                            unsafe_allow_html=True)
+            icon = next((icon for key, icon in element_icons.items() if key in card.name), "🎴")
+            orientation = "【正位】" if card.is_upright else "【逆位】"
+
+            # 使用 HTML/CSS 建立精緻卡片
+            st.markdown(f"""
+            <div class="tarot-card">
+                <div class="emoji-size">{icon}</div>
+                <div class="card-name">{card.name}</div>
+                <div style="color: #66ccff; font-size: 0.9rem;">{orientation}</div>
+                <hr style="margin: 10px 0; border: 0.5px solid #444;">
+                <div class="card-meaning">{card.meaning}</div>
+            </div>
+            """, unsafe_allow_html=True)
 
     st.markdown("---")
     if st.button("🔮 召喚 Gemini 深度解牌"):
