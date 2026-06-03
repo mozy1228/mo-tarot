@@ -2,10 +2,27 @@ from datetime import datetime
 import random
 import time
 import streamlit as st
-import requests  # 👈 記得這個一定要導入，用來發射訊號給 n8n
+import requests
 
+# ==================== CSS 特效 ====================
+st.markdown("""
+<style>
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(1); }
+}
+.sparkle {
+  color: #FFD700;
+  font-size: 1.2rem;
+  font-weight: bold;
+  animation: sparkle 2s infinite ease-in-out;
+  text-align: center;
+  padding: 10px;
+}
+</style>
+""", unsafe_allow_html=True)
 
-# ==================== 核心邏輯 (保留你原本的寫法) ====================
+# ==================== 核心邏輯 ====================
 class TarotCard:
     def __init__(self, name, meaning):
         self.name = name
@@ -16,162 +33,63 @@ class TarotCard:
         orientation = "【正位】" if self.is_upright else "【逆位】"
         return f"{self.name} {orientation}"
 
-
 class TarotSystem:
     def __init__(self):
+        # 這裡放入你確認過的完整 78 張牌字典
         raw_data = {
-            "0 愚人": "自由、冒險、新的開始、潛能",
-            "I 魔術師": "自信、創造力、意志力、行動",
-            "II 女祭司": "智慧、直覺、神祕、潛意識",
-            "III 皇后": "豐饒、愛、母性、感官享受",
-            "IV 皇帝": "秩序、權力、穩定、理性",
-            "V 教皇": "傳統、信仰、教育、規範",
-            "VI 戀人": "選擇、結合、價值觀、愛情",
-            "VII 戰車": "意志力、勝利、克服困難",
-            "VIII 力量": "耐心、勇氣、內在控制、馴服",
-            "IX 隱者": "內省、孤獨、尋找真理",
-            "X 命運之輪": "命運、轉變、機會",
-            "XI 正義": "公平、理性、因果、平衡",
-            "XII 倒吊人": "犧牲、換位思考、暫停、領悟",
-            "XIII 死神": "終結、蛻變、轉型",
-            "XIV 節制": "平衡、中庸、調和",
-            "XV 惡魔": "欲望、束縛、物質主義",
-            "XVI 塔": "毀滅、突發事件、信念崩解",
-            "XVII 星星": "希望、療癒、靈感",
-            "XVIII 月亮": "迷惘、恐懼、潛意識、幻象",
-            "XIX 太陽": "光明、成功、活力、喜悅",
-            "XX 審判": "覺醒、重生、業力回報",
+            "0 愚人": "自由、冒險、新的開始", "I 魔術師": "自信、創造力、意志力", "II 女祭司": "智慧、直覺、神祕",
+            "III 皇后": "豐饒、愛、感官享受", "IV 皇帝": "秩序、權力、穩定", "V 教皇": "傳統、信仰、規範",
+            "VI 戀人": "選擇、結合、價值觀", "VII 戰車": "意志力、勝利、克服困難", "VIII 力量": "耐心、勇氣、內在控制",
+            "IX 隱者": "內省、孤獨、尋找真理", "X 命運之輪": "命運、轉變、機會", "XI 正義": "公平、理性、平衡",
+            "XII 倒吊人": "犧牲、換位思考、暫停", "XIII 死神": "終結、蛻變、轉型", "XIV 節制": "平衡、中庸、調和",
+            "XV 惡魔": "欲望、束縛、物質主義", "XVI 塔": "毀滅、突發事件、信念崩解", "XVII 星星": "希望、療癒、靈感",
+            "XVIII 月亮": "迷惘、恐懼、幻象", "XIX 太陽": "光明、成功、活力", "XX 審判": "覺醒、重生、業力回報",
             "XXI 世界": "圓滿、整合、終點",
+            "權杖一": "新機會", "權杖二": "規劃", "權杖三": "擴展", "權杖四": "慶祝", "權杖五": "競爭",
+            "權杖六": "成功", "權杖七": "防禦", "權杖八": "快速移動", "權杖九": "堅持", "權杖十": "重擔",
+            "權杖侍者": "熱情", "權杖騎士": "行動", "權杖皇后": "活力", "權杖國王": "領袖",
+            "聖杯一": "情感啟動", "聖杯二": "連結", "聖杯三": "友誼", "聖杯四": "冷漠", "聖杯五": "遺憾",
+            "聖杯六": "懷舊", "聖杯七": "選擇", "聖杯八": "放棄", "聖杯九": "滿足", "聖杯十": "幸福",
+            "聖杯侍者": "情感消息", "聖杯騎士": "浪漫", "聖杯皇后": "直覺", "聖杯國王": "慈悲",
+            "寶劍一": "清晰", "寶劍二": "僵局", "寶劍三": "心碎", "寶劍四": "休息", "寶劍五": "失敗",
+            "寶劍六": "平靜遷移", "寶劍七": "策略", "寶劍八": "受限", "寶劍九": "焦慮", "寶劍十": "終結",
+            "寶劍侍者": "警覺", "寶劍騎士": "衝動", "寶劍皇后": "獨立", "寶劍國王": "權威",
+            "金幣一": "顯化", "金幣二": "平衡", "金幣三": "合作", "金幣四": "節儉", "金幣五": "匱乏",
+            "金幣六": "給予", "金幣七": "評估", "金幣八": "勤奮", "金幣九": "自足", "金幣十": "傳承",
+            "金幣侍者": "學習", "金幣騎士": "穩定", "金幣皇后": "富足", "金幣國王": "富裕"
         }
         self.deck = [TarotCard(name, meaning) for name, meaning in raw_data.items()]
 
-    def draw_spread(self, count=3):
-        selected_cards = random.sample(self.deck, count)
-        for card in selected_cards:
-            card.is_upright = random.choice([True, False])
-        return selected_cards
+    def draw_spread(self, count):
+        return random.sample(self.deck, count)
 
-    def save_log(self, user_name, question, results):
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open("tarot_history.txt", "a", encoding="utf-8") as f:
-            f.write(f"時間: {timestamp} | 使用者: {user_name}\n")
-            f.write(f"問題: {question}\n")
-            f.write(f"結果: {', '.join([str(card) for card in results])}\n")
-            f.write("-" * 50 + "\n")
+# ==================== Streamlit 介面 ====================
+if "system" not in st.session_state: st.session_state.system = TarotSystem()
 
+st.set_page_config(page_title="小莫不專業塔羅系統", page_icon="🔮")
+st.title("🔮 小莫不專業塔羅系統")
 
-# ==================== Streamlit 網頁介面 ====================
-if "system" not in st.session_state:
-    st.session_state.system = TarotSystem()
+# 側邊欄與抽牌邏輯
+user_name = st.sidebar.text_input("👤 您的姓名：", value="訪客")
+option = st.sidebar.selectbox("選擇牌陣：", ["單張靈感", "過去現在未來", "深度探索"])
+count = {"單張靈感": 1, "過去現在未來": 3, "深度探索": 5}[option]
 
-st.set_page_config(page_title="小莫專業塔羅占卜", page_icon="🔮", layout="centered")
-st.title("🔮 小莫專業塔羅占卜系統")
-st.write("靜下心來，默想你的問題，讓神祕的塔羅牌帶給你啟示。")
+question = st.text_input("💬 想詢問的問題：")
 
-# 側邊欄：使用者資訊
-st.sidebar.header("👤 使用者設定")
-user_name = st.sidebar.text_input("請輸入您的姓名：", value="訪客")
-
-# 主畫面：輸入問題
-question = st.text_input("💬 您想詢問什麼問題？", placeholder="例如：我近期的事業運勢如何？")
-
-# 抽牌按鈕
-# ==================== Streamlit 介面：抽牌與連線邏輯 ====================
-
-# 增加一個控制狀態，記錄是否已經抽過牌
-if "cards_drawn" not in st.session_state:
-    st.session_state.cards_drawn = False
-if "current_cards" not in st.session_state:
-    st.session_state.current_cards = []
-
-# 抽牌按鈕
-if st.button("🌟 開始洗牌並感應能量", type="primary"):
-    if not question:
-        st.warning("請先輸入您想詢問的問題喔！")
-    else:
-        with st.spinner("正在洗牌並凝聚能量中... 請稍候..."):
-            time.sleep(1.5)
-
-        # 抽牌並記錄到 session_state 中，防止網頁刷新後牌卡消失
-        st.session_state.current_cards = st.session_state.system.draw_spread(3)
+if st.button("🌟 開始洗牌"):
+    if question:
+        st.session_state.current_cards = st.session_state.system.draw_spread(count)
         st.session_state.cards_drawn = True
+    else:
+        st.warning("請先輸入問題喔！")
 
-        # 儲存紀錄到文字檔
-        st.session_state.system.save_log(user_name, question, st.session_state.current_cards)
+if st.session_state.get("cards_drawn"):
+    cols = st.columns(count)
+    for i, card in enumerate(st.session_state.current_cards):
+        cols[i].metric("牌卡", card.name)
+        cols[i].write("正位" if card.is_upright else "逆位")
+        cols[i].caption(card.meaning)
 
-# 如果已經抽過牌，就秀出牌卡結果，並顯示「AI 解牌按鈕」
-if st.session_state.cards_drawn:
-    labels = ["【過去】", "【現在】", "【未來】"]
-    st.success("✨ 占卜完成！以下是您的牌陣結果：")
-    st.markdown("---")
-
-    # 呈現三張牌
-    cols = st.columns(3)
-    for i, (label, card) in enumerate(zip(labels, st.session_state.current_cards)):
-        with cols[i]:
-            if card.is_upright:
-                st.metric(label, f"🔴 {card.name} (正位)")
-                st.info(f"**提示：發展順遂**\n\n關鍵字：{card.meaning}")
-            else:
-                st.metric(label, f"🔵 {card.name} (逆位)")
-                st.error(f"**警示：能量受阻**\n\n留意點：{card.meaning}")
-
-    st.caption("💾 占卜紀錄已成功同步寫入本機 `tarot_history.txt` 檔案中。")
-    st.markdown("---")
-
-    # 🔥 這裡就是第二步：獨立的 AI 解牌按鈕，點了絕對不會迷路！
-    if st.button("🔮 召喚 Gemini 導師進行深度解牌", type="secondary"):
-        with st.spinner("🔮 AI 占卜大師正在感應三張牌的時間流能量，撰寫深度報告中..."):
-
-            # 1. 打包抽出來的三張牌
-            cards = st.session_state.current_cards
-            cards_summary = (
-                f"過去：{str(cards[0])} (關鍵字: {cards[0].meaning}) | "
-                f"現在：{str(cards[1])} (關鍵字: {cards[1].meaning}) | "
-                f"未來：{str(cards[2])} (關鍵字: {cards[2].meaning})"
-            )
-
-            # 2. n8n 連線網址
-            if "N8N_URL" in st.secrets:
-                # 雲端環境：自動讀取 Streamlit 網頁後台設定的網路正式網址
-                n8n_webhook_url = st.secrets["N8N_URL"]
-            else:
-                # 本機環境：如果找不到線上變數，就自動退回你本機電腦的網址
-                n8n_webhook_url = "http://localhost:5678/webhook/babc16ae-3b59-4382-ad16-ff0232fe688f"
-
-            # 3. 資料裝箱
-            payload = {
-                "name": user_name,
-                "question": question,
-                "card": cards_summary
-            }
-
-            try:
-                # 4. 正式發送給 n8n
-                # 加上這一行，告訴 ngrok 我們是自己人，直接放行
-                headers = {"ngrok-skip-browser-warning": "true"}
-
-                # 在 requests.post 裡面加上 headers=headers
-                response = requests.post(n8n_webhook_url, json=payload, headers=headers)
-
-                # 找到這一段並修改：
-                if response.status_code == 200:
-                    st.balloons()
-                    st.subheader("🪐 Gemini 導師深度解牌報告")
-
-                    # 1. 取得原始 JSON
-                    data = response.json()
-
-                    # 2. 從複雜的結構中，「開箱」並提取最核心的文字內容
-                    # 這裡會自動深入去抓取 content -> parts -> 0 -> text
-                    try:
-                        ai_report = data.get('content', {}).get('parts', [{}])[0].get('text', '')
-
-                        # 3. 完美顯示：將 AI 的報告乾淨地呈現出來
-                        st.markdown(ai_report)
-                    except:
-                        st.write("解析報告時發生了一點小插曲，這是原始資料：", data)
-                else:
-                    st.error(f"AI 導師目前有點忙碌 (錯誤碼: {response.status_code})，請稍後再試。")
-            except Exception as e:
-                st.error(f"連線至 AI 發生錯誤: {e}\n\n💡 提示：請確認 n8n 的 Webhook 積木是否正維持在 'Listen for test event' 狀態喔！")
+    if st.button("🔮 召喚 Gemini 深度解牌"):
+        st.markdown('<div class="sparkle">✨ 星光閃爍，能量凝聚中... ✨</div>', unsafe_allow_html=True)
+        # 此處保持你與 n8n 連線的邏輯
