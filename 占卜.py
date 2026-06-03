@@ -128,7 +128,7 @@ if st.session_state.get("cards_drawn"):
             """, unsafe_allow_html=True)
 
     st.markdown("---")
-    if st.button("🔮 召喚 Gemini 深度解牌"):
+    if st.button("🔮 召喚小莫深度解牌"):
         st.markdown('<div class="sparkle">✨ 星光閃爍，能量凝聚中... ✨</div>', unsafe_allow_html=True)
 
         n8n_webhook_url = "https://wrecking-outlook-lesser.ngrok-free.dev/webhook/babc16ae-3b59-4382-ad16-ff0232fe688f"
@@ -140,15 +140,26 @@ if st.session_state.get("cards_drawn"):
 
         try:
             response = requests.post(n8n_webhook_url, json=payload, timeout=60)
+
             if response.status_code == 200:
-                st.subheader("🪐 Gemini 導師深度報告")
-                data = response.json()
-                # 這裡會讀取 n8n 剛才定義的 output 鍵值
-                st.markdown(data.get('output', '系統正在整理導師的訊息...'))
+                # 這裡我們不直接用 response.json()，因為它對特殊字元很敏感
+                # 我們先把內容轉成文字，並過濾掉那些會造成崩潰的非法字元
+                raw_text = response.text
+
+                # 簡單修正常見的 JSON 衝突：把不合法的換行轉義
+                clean_text = raw_text.replace('\n', '\\n').replace('\r', '\\r')
+
+                # 嘗試解析
+                import json
+
+                data = json.loads(clean_text)
+
+                st.subheader("🪐  小莫導師深度報告")
+                ai_text = data.get('output', '小莫導師剛剛靈感閃現，但沒說出話來...')
+                st.markdown(ai_text)
             else:
-                st.error("⚠️ 訊號有點雜訊，Gemini 導師正在調整頻率...")
-        except requests.exceptions.ConnectionError:
-            st.warning("💤 小莫現在去追蝴蝶或是睡午覺了，塔羅系統暫時進入夢鄉。")
-            st.caption("— 記得提醒小莫回來開工喔！")
+                st.error(f"伺服器回應異常，狀態碼: {response.status_code}")
+
         except Exception as e:
             st.error(f"系統發生了一點小插曲: {e}")
+            st.caption("建議檢查 n8n 的輸出，確認 AI 生成的內容沒有奇怪的隱藏符號。")
