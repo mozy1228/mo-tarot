@@ -21,12 +21,14 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+
 # ==================== 核心邏輯 ====================
 class TarotCard:
     def __init__(self, name, meaning):
         self.name = name
         self.meaning = meaning
         self.is_upright = random.choice([True, False])
+
 
 class TarotSystem:
     def __init__(self):
@@ -57,6 +59,7 @@ class TarotSystem:
     def draw_spread(self, count):
         return random.sample(self.deck, count)
 
+
 # ==================== Streamlit 介面 ====================
 if "system" not in st.session_state: st.session_state.system = TarotSystem()
 
@@ -79,34 +82,44 @@ if st.button("🌟 開始洗牌"):
         st.warning("請先輸入問題喔！")
 
 if st.session_state.get("cards_drawn"):
+    # 設定 columns
+    cols = st.columns(count)
+
     element_icons = {
         "權杖": "🔥", "聖杯": "💧", "寶劍": "⚔️", "金幣": "💰", "愚人": "🃏", "魔術師": "🪄", "女祭司": "📜",
         "皇后": "👑", "皇帝": "🏛️", "教皇": "⛪", "戀人": "❤️", "戰車": "🐎", "力量": "🦁", "隱者": "🕯️",
         "命運": "🎡", "正義": "⚖️", "倒吊人": "🧘", "死神": "💀", "節制": "🏺", "惡魔": "⛓️", "塔": "⚡",
         "星星": "🌟", "月亮": "🌙", "太陽": "☀️", "審判": "🎺", "世界": "🌍"
     }
-    
-    cols = st.columns(count)
+
     for i, card in enumerate(st.session_state.current_cards):
         with cols[i]:
             time.sleep(0.3)
-            icon = next((icon for key, icon in element_icons.items() if key in card.name), "🎴")
-            st.markdown(f"<div style='font-size: 3rem; text-align: center;'>{icon}</div>", unsafe_allow_html=True)
-            st.markdown(f"<div style='text-align: center;'><b>{card.name}</b></div>", unsafe_allow_html=True)
-            st.markdown(f"<div style='text-align: center; color: #888;'>{'【正位】' if card.is_upright else '【逆位】'}</div>", unsafe_allow_html=True)
-            st.caption(f"{card.meaning}")
-    
+            # 使用 container 讓每一張牌都長得整齊劃一
+            with st.container(border=True):
+                icon = next((icon for key, icon in element_icons.items() if key in card.name), "🎴")
+                st.markdown(f"<div style='font-size: 2.5rem; text-align: center;'>{icon}</div>", unsafe_allow_html=True)
+                # 使用 markdown 顯示名字，不再用 metric，避免文字過長導致排版崩壞
+                st.markdown(f"<div style='text-align: center; font-size: 1.1rem;'><b>{card.name}</b></div>",
+                            unsafe_allow_html=True)
+                st.markdown(
+                    f"<div style='text-align: center; color: #555; font-size: 0.9rem;'>{'【正位】' if card.is_upright else '【逆位】'}</div>",
+                    unsafe_allow_html=True)
+                st.divider()
+                st.markdown(f"<div style='text-align: center; font-size: 0.8rem;'>{card.meaning}</div>",
+                            unsafe_allow_html=True)
+
     st.markdown("---")
     if st.button("🔮 召喚 Gemini 深度解牌"):
         st.markdown('<div class="sparkle">✨ 星光閃爍，能量凝聚中... ✨</div>', unsafe_allow_html=True)
-        
+
         n8n_webhook_url = "https://wrecking-outlook-lesser.ngrok-free.dev/webhook/babc16ae-3b59-4382-ad16-ff0232fe688f"
         payload = {
             "name": user_name,
             "question": question,
             "card": str([(c.name + ("【正位】" if c.is_upright else "【逆位】")) for c in st.session_state.current_cards])
         }
-        
+
         try:
             response = requests.post(n8n_webhook_url, json=payload, timeout=25)
             if response.status_code == 200:
