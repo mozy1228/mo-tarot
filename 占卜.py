@@ -170,7 +170,9 @@ if st.session_state.cards_drawn:
                                       response_json.get("output", {}).get("text") or \
                                       response.text
 
-                        st.markdown(report_text)
+                        final_report = report_text.replace("\\n", "\n")
+
+                        st.markdown(final_report)
 
                     except Exception as e:
                         # 如果解析 JSON 失敗，至少把原始文字顯示出來，讓你看到報告

@@ -2,32 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b81fb22e-7873-4156-9c89-4999432bc84e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/PythonProject1.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/0528-1.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/0528.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/0602.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/0602_1.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/111.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cat.gray.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cat.gray.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cat.gray.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cat.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cat_1.gray.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cat_2.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cat_3.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/images/0409-1.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/images/requirements.txt.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/images/tarot_history.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/images/占卜.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tarot_history.txt" beforeDir="false" afterPath="$PROJECT_DIR$/tarot_history.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/莫淳源1.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/飲料占卜.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/占卜.py" beforeDir="false" afterPath="$PROJECT_DIR$/占卜.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
