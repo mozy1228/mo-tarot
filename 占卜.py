@@ -143,8 +143,8 @@ if st.session_state.get("cards_drawn"):
             if response.status_code == 200:
                 st.subheader("🪐 Gemini 導師深度報告")
                 data = response.json()
-                ai_text = data.get('output') or str(data)
-                st.markdown(ai_text)
+                # 這裡會讀取 n8n 剛才定義的 output 鍵值
+                st.markdown(data.get('output', '系統正在整理導師的訊息...'))
             else:
                 st.error("⚠️ 訊號有點雜訊，Gemini 導師正在調整頻率...")
         except requests.exceptions.ConnectionError:
