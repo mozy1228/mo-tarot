@@ -173,6 +173,10 @@ if st.session_state.cards_drawn:
                         final_report = report_text.replace("\\n", "\n")
 
                         st.markdown(final_report)
+                        if '"thoughtSignature"' in final_report:
+                            final_report = final_report.split('"thoughtSignature"')[0]
+
+                        st.markdown(final_report)
 
                     except Exception as e:
                         # 如果解析 JSON 失敗，至少把原始文字顯示出來，讓你看到報告
