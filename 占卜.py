@@ -94,7 +94,8 @@ if st.session_state.get("cards_drawn"):
         st.markdown('<div class="sparkle">✨ 星光閃爍，能量凝聚中... ✨</div>', unsafe_allow_html=True)
 
         # 請確認這個網址是 n8n 目前正確的 Webhook 網址
-        n8n_webhook_url = "http://localhost:5678/webhook/babc16ae-3b59-4382-ad16-ff0232fe688f"
+        # 請將原本的 localhost 網址改為下面這行
+        n8n_webhook_url = "https://wrecking-outlook-lesser.ngrok-free.dev/webhook/babc16ae-3b59-4382-ad16-ff0232fe688f"
 
         payload = {
             "name": user_name,
@@ -108,12 +109,15 @@ if st.session_state.get("cards_drawn"):
             if response.status_code == 200:
                 st.subheader("🪐 Gemini 導師深度報告")
                 data = response.json()
-                # 嘗試抓取 output，如果抓不到就顯示完整資料
                 ai_text = data.get('output') or str(data)
                 st.markdown(ai_text)
             else:
-                st.error(f"連線異常 (狀態碼: {response.status_code})")
-                st.text(f"錯誤內容: {response.text}")
+                st.error("⚠️ 訊號有點雜訊，Gemini 導師正在調整頻率...")
+
+        except requests.exceptions.ConnectionError:
+            # 這裡就是你要的幽默錯誤處理
+            st.warning("💤 小莫現在去追蝴蝶或是睡午覺了，塔羅系統暫時進入夢鄉。")
+            st.caption("— 記得提醒小莫回來開工喔！")
 
         except Exception as e:
-            st.error(f"無法連結到 n8n 服務: {e}")
+            st.error(f"系統發生了一點小插曲: {e}")
