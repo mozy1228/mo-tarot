@@ -159,15 +159,24 @@ if st.session_state.cards_drawn:
                     st.balloons()
                     st.subheader("🪐 Gemini 導師深度解牌報告")
 
-                    # 修改這裡：使用 json().get("text") 準確解析內容
+                    # 這是最穩定的解析方式
                     try:
-                        ai_report = response.json().get("text")
-                        st.markdown(ai_report)
-                    except:
-                        # 萬一 JSON 解析失敗，秀出原始回應方便偵錯
+                        # 因為 n8n 回傳的是 JSON，我們要先抓出來
+                        response_json = response.json()
+
+                        # 根據我們之前的設定，文字內容會藏在這裡面
+                        # 我們檢查一下不同的路徑，確保一定能抓到
+                        report_text = response_json.get("text") or \
+                                      response_json.get("output", {}).get("text") or \
+                                      response.text
+
+                        st.markdown(report_text)
+
+                    except Exception as e:
+                        # 如果解析 JSON 失敗，至少把原始文字顯示出來，讓你看到報告
                         st.markdown(response.text)
                 else:
-                    st.error(f"連線失敗，狀態碼: {response.status_code}")
+                    st.error(f"AI 導師目前有點忙碌 (錯誤碼: {response.status_code})，請稍後再試。")
             except Exception as e:
                 st.error(
                     f"連線至 AI 發生錯誤: {e}\n\n💡 提示：請確認 n8n 的 Webhook 積木是否正維持在 'Listen for test event' 狀態喔！")
