@@ -128,7 +128,7 @@ if st.session_state.get("cards_drawn"):
             """, unsafe_allow_html=True)
 
     st.markdown("---")
-    if st.button("🔮 召喚 Gemini 深度解牌"):
+    if st.button("🔮 召喚小莫深度解牌"):
         loading_messages = [
             "小莫正在通靈中，請稍候... 有時候準有時候不準喔！",
             "正在緊急惡補塔羅牌知識中，請給我三十秒。",
