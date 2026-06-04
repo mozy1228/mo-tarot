@@ -146,7 +146,7 @@ if st.session_state.get("cards_drawn"):
             "card": str([(c.name + ("【正位】" if c.is_upright else "【逆位】")) for c in st.session_state.current_cards])
         }
 
-                try:
+        try:
             with st.spinner("🔮 小莫正在宇宙邊緣跟伺服器連線..."):
                 response = requests.post(n8n_webhook_url, json=payload, timeout=60)
 
@@ -158,11 +158,10 @@ if st.session_state.get("cards_drawn"):
                 # 檢查內容是否為空
                 if not data or 'output' not in data:
                     st.warning("⚠️ 奇怪，宇宙訊號傳回來了，但小莫卻說它是空的... (檢查一下 n8n 的 Respond 節點設定)")
-                    st.write(f"原始回應: {response.text}")
+                    st.write(f"原始回應內容: {response.text}")
                 else:
                     st.subheader("🪐 小莫導師深度報告")
                     st.markdown(data.get('output'))
-
             else:
                 st.error(f"❌ 伺服器鬧脾氣了 (狀態碼: {response.status_code})")
                 st.write("--- 除錯室 ---")
