@@ -146,28 +146,29 @@ if st.session_state.get("cards_drawn"):
             "card": str([(c.name + ("【正位】" if c.is_upright else "【逆位】")) for c in st.session_state.current_cards])
         }
 
-        try:
-            # 發送請求
-            response = requests.post(n8n_webhook_url, json=payload, timeout=60)
+                try:
+            with st.spinner("🔮 小莫正在宇宙邊緣跟伺服器連線..."):
+                response = requests.post(n8n_webhook_url, json=payload, timeout=60)
 
-            # --- 強制偵錯區：把 response.text 印出來看看 ---
-            if response.status_code != 200:
-                st.error(f"❌ 伺服器錯誤代碼: {response.status_code}")
-                st.code(response.text)  # 這會幫你把 n8n 吐出的錯誤頁面顯示出來
-            else:
+            # 幽默的除錯輸出
+            if response.status_code == 200:
+                # 這裡強制嘗試用 response.json()
+                data = response.json()
+
                 # 檢查內容是否為空
-                if not response.text.strip():
-                    st.error("❌ n8n 回傳了空白內容！請檢查 n8n 的 Respond 節點。")
+                if not data or 'output' not in data:
+                    st.warning("⚠️ 奇怪，宇宙訊號傳回來了，但小莫卻說它是空的... (檢查一下 n8n 的 Respond 節點設定)")
+                    st.write(f"原始回應: {response.text}")
                 else:
-                    try:
-                        # 嘗試用標準方式解析
-                        data = response.json()
-                        st.subheader("🪐 小莫導師深度報告")
-                        st.markdown(data.get('output', '導師沒說話...'))
-                    except Exception as parse_error:
-                        st.error(f"❌ JSON 解析失敗: {parse_error}")
-                        st.markdown("以下是收到的原始資料，請檢查是否包含 HTML 或錯誤訊息：")
-                        st.code(response.text)  # 這裡會揪出兇手
-            # ---------------------------------------------
+                    st.subheader("🪐 小莫導師深度報告")
+                    st.markdown(data.get('output'))
+
+            else:
+                st.error(f"❌ 伺服器鬧脾氣了 (狀態碼: {response.status_code})")
+                st.write("--- 除錯室 ---")
+                st.write(f"伺服器回了這句話: {response.text}")
+                st.write("建議：檢查 n8n 有沒有開著，或者 API 是不是又被關禁閉了。")
+
         except Exception as e:
-            st.error(f"系統發生了一點小插曲: {e}")
+            st.error(f"💀 系統崩潰了：{e}")
+            st.info("小莫跑去泡咖啡忘記回來，請稍候再試一次。")
