@@ -147,27 +147,21 @@ if st.session_state.get("cards_drawn"):
         }
 
         try:
-            with st.spinner("🔮 小莫正在宇宙邊緣跟伺服器連線..."):
+            with st.spinner("🔮 小莫正在連線中..."):
                 response = requests.post(n8n_webhook_url, json=payload, timeout=60)
-
-            # 幽默的除錯輸出
+            
             if response.status_code == 200:
-                # 這裡強制嘗試用 response.json()
-                data = response.json()
-
-                # 檢查內容是否為空
-                if not data or 'output' not in data:
-                    st.warning("⚠️ 奇怪，宇宙訊號傳回來了，但小莫卻說它是空的... (檢查一下 n8n 的 Respond 節點設定)")
-                    st.write(f"原始回應內容: {response.text}")
+                # 這裡改用 .text，不強求 JSON 格式
+                result_text = response.text 
+                
+                if not result_text or result_text.strip() == "":
+                    st.warning("⚠️ 小莫收到的是空白訊號。")
                 else:
                     st.subheader("🪐 小莫導師深度報告")
-                    st.markdown(data.get('output'))
+                    st.markdown(result_text)
             else:
                 st.error(f"❌ 伺服器鬧脾氣了 (狀態碼: {response.status_code})")
-                st.write("--- 除錯室 ---")
-                st.write(f"伺服器回了這句話: {response.text}")
-                st.write("建議：檢查 n8n 有沒有開著，或者 API 是不是又被關禁閉了。")
-
+                st.write(f"錯誤訊息: {response.text}")
+                
         except Exception as e:
             st.error(f"💀 系統崩潰了：{e}")
-            st.info("小莫跑去泡咖啡忘記回來，請稍候再試一次。")
