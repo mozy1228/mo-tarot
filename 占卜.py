@@ -139,7 +139,7 @@ if st.session_state.get("cards_drawn"):
         msg = random.choice(loading_messages)
         st.markdown(f'<div class="sparkle">✨ {msg} ✨</div>', unsafe_allow_html=True)
 
-        n8n_webhook_url = "https://wrecking-outlook-lesser.ngrok-free.dev/webhook/babc16ae-3b59-4382-ad16-ff0232fe688f"
+        n8n_webhook_url = "https://hook.eu1.make.com/8qpjieuoqllr1e9df9kfh36hk9bhmn8n"
         payload = {
             "name": user_name,
             "question": question,
